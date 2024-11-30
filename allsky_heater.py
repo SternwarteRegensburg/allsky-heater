@@ -9,7 +9,8 @@ import http.client
 import json
 import math
 
-from RPi import GPIO
+# pylint: disable=R0402
+import RPi.GPIO as GPIO
 
 
 def kelvin_to_celsius(kelvin: float) -> float:
