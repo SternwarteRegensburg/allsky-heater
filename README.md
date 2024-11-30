@@ -16,6 +16,12 @@ The hardware setup is similar to [hdiessner/Allskycam-heating](https://github.co
 
 # Installation
 
+1. Install the `python-rpi.gpio` package:
+
+   ```bash
+   sudo apt install python-rpi.gpio
+   ```
+
 1. Copy the `allsky-heater.service` and `allsky-heater.timer` from the [systemd](./systemd) directory to
    `/etc/systemd/system`:
 

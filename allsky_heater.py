@@ -12,9 +12,6 @@ import math
 
 import RPi.GPIO as GPIO
 
-CONFIG = configparser.ConfigParser()
-CONFIG.read('/etc/allsky-heater.conf')
-
 
 def kelvin_to_celsius(kelvin: float) -> float:
     """
@@ -99,7 +96,7 @@ def switch_heater(pin: int, state: bool) -> None:
     GPIO.setup(pin, GPIO.OUT)
     GPIO.output(pin, state)
 
-def calculate_heater_state(temp_celsius, rel_humidity, temp_margin) -> bool:
+def calculate_heater_state(temp_celsius: float, rel_humidity: float, temp_margin: float) -> bool:
     """
     Calculate if the heater should be turned off or on based on current temperature and humidity
 
@@ -122,6 +119,9 @@ def __main__(latitude: float, longitude: float, api_key: str, pin: int, temp_mar
     temp_celsius, rel_humidity = get_temp_and_humidity(latitude, longitude, api_key)
     heater_state = calculate_heater_state(temp_celsius, rel_humidity, temp_margin)
     switch_heater(pin, heater_state)
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read('/etc/allsky-heater.conf')
 
 __main__(
     float(CONFIG["DEFAULT"]["LATITUDE"]),
