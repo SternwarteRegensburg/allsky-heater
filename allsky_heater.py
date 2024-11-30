@@ -103,7 +103,7 @@ def switch_heater(pin: int, state: bool) -> None:
     """
     Set GPIO pin of Raspberry Pi to high or low
 
-    param pin: GPIO pin number that is connected to the relais
+    param pin: GPIO pin number that is connected to the relay
     param state: true turns heater on, false turns heater off
     """
     GPIO.setmode(GPIO.BCM)
@@ -151,6 +151,6 @@ __main__(
     float(CONFIG["DEFAULT"]["LATITUDE"]),
     float(CONFIG["DEFAULT"]["LONGITUDE"]),
     CONFIG["DEFAULT"]["OPENWEATHERMAP_API_KEY"],
-    int(CONFIG["DEFAULT"]["RELAIS_PIN"]),
+    int(CONFIG["DEFAULT"]["RELAY_PIN"]),
     float(CONFIG["DEFAULT"]["TEMP_MARGIN"]),
 )
