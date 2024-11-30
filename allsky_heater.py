@@ -1,9 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Fetch weather information from web and turn on/off AllSky dew heater
 """
-
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import configparser
 import http.client
