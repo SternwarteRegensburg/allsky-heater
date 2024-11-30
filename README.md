@@ -22,6 +22,13 @@ The hardware setup is similar to [hdiessner/Allskycam-heating](https://github.co
    sudo apt install python-rpi.gpio
    ```
 
+1. Clone this repository and cd into the new directory:
+   
+   ```bash
+   git clone https://github.com/SternwarteRegensburg/allsky-heater.git
+   cd allsky-heater
+   ```
+
 1. Copy the `allsky-heater.service` and `allsky-heater.timer` from the [systemd](./systemd) directory to
    `/etc/systemd/system`:
 
@@ -47,4 +54,5 @@ The hardware setup is similar to [hdiessner/Allskycam-heating](https://github.co
    ```bash
    sudo systemctl daemon-reload
    sudo systemctl enable allsky-heater.timer
+   sudo systemctl start allsky-heater.timer
    ```
