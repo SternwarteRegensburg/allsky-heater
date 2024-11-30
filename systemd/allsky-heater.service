@@ -1,0 +1,12 @@
+[Unit]
+Description=AllSky Camera heater management
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/bin/allsky_heater.py
+User=pi
+Group=pi
+
+[Install]
+WantedBy=multi-user.target

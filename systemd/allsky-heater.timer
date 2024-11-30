@@ -1,0 +1,10 @@
+[Unit]
+Description=Timer for AllSky Camera heater management
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=15min
+Unit=allsky-heater.service
+
+[Install]
+WantedBy=timers.target
