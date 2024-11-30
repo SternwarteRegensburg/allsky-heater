@@ -10,16 +10,17 @@ import http.client
 import json
 import math
 
-import RPi.GPIO as GPIO
+from RPi import GPIO
 
 
 def kelvin_to_celsius(kelvin: float) -> float:
     """
     convert degrees Kelvin to Celsius
 
-    param: 
+    param:
     """
     return kelvin - 273.15
+
 
 def get_frost_point_c(t_air_c: float, dew_point_c: float) -> float:
     """
@@ -27,12 +28,14 @@ def get_frost_point_c(t_air_c: float, dew_point_c: float) -> float:
 
     :param t_air_c: current ambient temperature in degrees Celsius
     :param dew_point_c: current dew point in degrees Celsius
-    :return: the frost point in degrees Celsius 
+    :return: the frost point in degrees Celsius
     """
     dew_point_k = 273.15 + dew_point_c
     t_air_k = 273.15 + t_air_c
-    frost_point_k = dew_point_k - t_air_k + 2671.02 / (
-        (2954.61 / t_air_k) + 2.193665 * math.log(t_air_k) - 13.3448
+    frost_point_k = (
+        dew_point_k
+        - t_air_k
+        + 2671.02 / ((2954.61 / t_air_k) + 2.193665 * math.log(t_air_k) - 13.3448)
     )
     return frost_point_k - 273.15
 
@@ -47,10 +50,11 @@ def get_dew_point_c(t_air_c: float, rel_humidity: float) -> float:
     """
     A = 17.27
     B = 237.7
-    alpha = ((A * t_air_c) / (B + t_air_c)) + math.log(rel_humidity/100.0)
+    alpha = ((A * t_air_c) / (B + t_air_c)) + math.log(rel_humidity / 100.0)
     return (B * alpha) / (A - alpha)
 
-def fetch_weather_info(latitude: float, longitude: float, api_key: str) -> dict:
+
+def fetch_weather_info(latitude: float, longitude: float, api_key: str) -> dict | None:
     """
     Fetch current weather information for a location
 
@@ -61,19 +65,26 @@ def fetch_weather_info(latitude: float, longitude: float, api_key: str) -> dict:
     """
     try:
         conn = http.client.HTTPSConnection("api.openweathermap.org")
-        conn.request("GET", f"/data/2.5/weather?lat={latitude}&lon={longitude}&appid={api_key}")
+        conn.request(
+            "GET", f"/data/2.5/weather?lat={latitude}&lon={longitude}&appid={api_key}"
+        )
         response = conn.getresponse()
 
         if response.status == 200:
             data = response.read().decode("utf-8")
             json_data = json.loads(data)  # Parse the JSON data
             return json_data
-        print(f"Error: could not fetch weather info {response.status} {response.reason}")
+        print(
+            f"Error: could not fetch weather info {response.status} {response.reason}"
+        )
     finally:
         conn.close()
     return None
 
-def get_temp_and_humidity(latitude: float, longitude: float, api_key: str) -> tuple[float, float]:
+
+def get_temp_and_humidity(
+    latitude: float, longitude: float, api_key: str
+) -> tuple[float, float]:
     """
     Get the current temperature and relative humidity
 
@@ -83,7 +94,10 @@ def get_temp_and_humidity(latitude: float, longitude: float, api_key: str) -> tu
     return: current Celsius temperature and relative humidity
     """
     data = fetch_weather_info(latitude, longitude, api_key)
+    if data is None:
+        raise ValueError("Could not get weather data")
     return kelvin_to_celsius(data["main"]["temp"]), data["main"]["humidity"]
+
 
 def switch_heater(pin: int, state: bool) -> None:
     """
@@ -96,7 +110,10 @@ def switch_heater(pin: int, state: bool) -> None:
     GPIO.setup(pin, GPIO.OUT)
     GPIO.output(pin, state)
 
-def calculate_heater_state(temp_celsius: float, rel_humidity: float, temp_margin: float) -> bool:
+
+def calculate_heater_state(
+    temp_celsius: float, rel_humidity: float, temp_margin: float
+) -> bool:
     """
     Calculate if the heater should be turned off or on based on current temperature and humidity
 
@@ -108,11 +125,17 @@ def calculate_heater_state(temp_celsius: float, rel_humidity: float, temp_margin
     dew_point = get_dew_point_c(temp_celsius, rel_humidity)
     frost_point = get_frost_point_c(temp_celsius, dew_point)
 
-    if temp_celsius - temp_margin < dew_point or temp_celsius - temp_margin < frost_point:
+    if (
+        temp_celsius - temp_margin < dew_point
+        or temp_celsius - temp_margin < frost_point
+    ):
         return True
     return False
 
-def __main__(latitude: float, longitude: float, api_key: str, pin: int, temp_margin: float):
+
+def __main__(
+    latitude: float, longitude: float, api_key: str, pin: int, temp_margin: float
+):
     """
     main program loop
     """
@@ -120,13 +143,14 @@ def __main__(latitude: float, longitude: float, api_key: str, pin: int, temp_mar
     heater_state = calculate_heater_state(temp_celsius, rel_humidity, temp_margin)
     switch_heater(pin, heater_state)
 
+
 CONFIG = configparser.ConfigParser()
-CONFIG.read('/etc/allsky-heater.conf')
+CONFIG.read("/etc/allsky-heater.conf")
 
 __main__(
     float(CONFIG["DEFAULT"]["LATITUDE"]),
     float(CONFIG["DEFAULT"]["LONGITUDE"]),
     CONFIG["DEFAULT"]["OPENWEATHERMAP_API_KEY"],
-    CONFIG["DEFAULT"]["RELAIS_PIN"],
-    CONFIG["DEFAULT"]["TEMP_MARGIN"]
+    int(CONFIG["DEFAULT"]["RELAIS_PIN"]),
+    float(CONFIG["DEFAULT"]["TEMP_MARGIN"]),
 )
