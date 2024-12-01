@@ -4,6 +4,7 @@
 Fetch weather information from web and turn on/off AllSky dew heater
 """
 
+import argparse
 import configparser
 import http.client
 import json
@@ -11,6 +12,27 @@ import math
 
 # pylint: disable=R0402
 import RPi.GPIO as GPIO
+
+
+PARSER = argparse.ArgumentParser(
+    prog="AllSky Camera Heater Management",
+    description="Turn AllSky camera dew heater on or off.",
+    epilog="https://github.com/SternwarteRegensburg.de/allsky-heater, MIT License",
+)
+PARSER.add_argument(
+    "config_file", default="/etc/allsky-heater.conf", help="Path to config file."
+)
+PARSER.add_argument(
+    "-t",
+    "--testmode",
+    action="store_true",
+    help="Do not toggle heater, print data instead.",
+    default=False,
+)
+ARGS = vars(PARSER.parse_args())
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ARGS["config_file"])
 
 
 def kelvin_to_celsius(kelvin: float) -> float:
@@ -124,7 +146,11 @@ def calculate_heater_state(
     """
     dew_point = get_dew_point_c(temp_celsius, rel_humidity)
     frost_point = get_frost_point_c(temp_celsius, dew_point)
-
+    if ARGS["testmode"]:
+        print(
+            f"Current temperature: {temp_celsius:.2f}°C, rel. humidity: {rel_humidity}%"
+        )
+        print(f"Dew point: {dew_point:.2f}°C, frost_point: {frost_point:.2f}°C")
     if (
         temp_celsius - temp_margin < dew_point
         or temp_celsius - temp_margin < frost_point
@@ -134,18 +160,22 @@ def calculate_heater_state(
 
 
 def __main__(
-    latitude: float, longitude: float, api_key: str, pin: int, temp_margin: float
+    latitude: float,
+    longitude: float,
+    api_key: str,
+    pin: int,
+    temp_margin: float,
 ):
     """
     main program loop
     """
     temp_celsius, rel_humidity = get_temp_and_humidity(latitude, longitude, api_key)
     heater_state = calculate_heater_state(temp_celsius, rel_humidity, temp_margin)
-    switch_heater(pin, heater_state)
+    if ARGS["testmode"]:
+        print(f"Turn heater on: {heater_state}")
+    else:
+        switch_heater(pin, heater_state)
 
-
-CONFIG = configparser.ConfigParser()
-CONFIG.read("/etc/allsky-heater.conf")
 
 __main__(
     float(CONFIG["DEFAULT"]["LATITUDE"]),
