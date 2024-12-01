@@ -3,15 +3,11 @@
 """
 Fetch weather information from web and turn on/off AllSky dew heater
 """
-
 import argparse
 import configparser
 import http.client
 import json
 import math
-
-# pylint: disable=R0402
-import RPi.GPIO as GPIO
 
 
 PARSER = argparse.ArgumentParser(
@@ -128,9 +124,10 @@ def switch_heater(pin: int, state: bool) -> None:
     param pin: GPIO pin number that is connected to the relay
     param state: true turns heater on, false turns heater off
     """
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(pin, GPIO.OUT)
-    GPIO.output(pin, state)
+    import RPi.GPIO as GPIO    # pylint: disable=consider-using-from-import,disable=import-outside-toplevel
+    GPIO.setmode(GPIO.BCM)     # pylint: disable=no-member
+    GPIO.setup(pin, GPIO.OUT)  # pylint: disable=no-member
+    GPIO.output(pin, state)    # pylint: disable=no-member
 
 
 def calculate_heater_state(
