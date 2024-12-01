@@ -63,23 +63,23 @@ def fetch_weather_info(latitude: float, longitude: float, api_key: str) -> dict 
     param api_key: openweathermap.org API key
     return: openweathermap.org data
     """
+    json_data = None
     try:
         conn = http.client.HTTPSConnection("api.openweathermap.org")
         conn.request(
             "GET", f"/data/2.5/weather?lat={latitude}&lon={longitude}&appid={api_key}"
         )
         response = conn.getresponse()
-
         if response.status == 200:
             data = response.read().decode("utf-8")
-            json_data = json.loads(data)  # Parse the JSON data
-            return json_data
-        print(
-            f"Error: could not fetch weather info {response.status} {response.reason}"
-        )
+            json_data = json.loads(data)
+        else:
+            print(
+                f"Error: could not fetch weather info {response.status} {response.reason}"
+            )
     finally:
         conn.close()
-    return None
+    return json_data
 
 
 def get_temp_and_humidity(
