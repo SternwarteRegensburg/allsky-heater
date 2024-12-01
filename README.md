@@ -56,3 +56,17 @@ The hardware setup is similar to [hdiessner/Allskycam-heating](https://github.co
    sudo systemctl enable allsky-heater.timer
    sudo systemctl start allsky-heater.timer
    ```
+
+# Usage
+
+You can run the program in test mode. In test mode, the program will not toggle the GPIO pin.
+The test mode can be executed on other hardware than a Raspberry Pi.
+
+Example:
+
+```bash
+$ python3 allsky_heater.py -t ./allsky-heater.conf
+Current temperature: -0.71°C, rel. humidity: 86%
+Dew point: -2.76°C, frost_point: -2.67°C
+Turn heater on: True
+```
