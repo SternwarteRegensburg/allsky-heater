@@ -119,22 +119,27 @@ def get_temp_and_humidity(
 
 def switch_heater(pin: int, state: bool) -> None:
     """
-    Set GPIO pin of Raspberry Pi to high or low
+    Set GPIO pin of Raspberry Pi to high or low. Do not toggle GPIO pin in test mode.
 
     param pin: GPIO pin number that is connected to the relay
     param state: true turns heater on, false turns heater off
     """
-    import RPi.GPIO as GPIO    # pylint: disable=consider-using-from-import,disable=import-outside-toplevel
-    GPIO.setmode(GPIO.BCM)     # pylint: disable=no-member
-    GPIO.setup(pin, GPIO.OUT)  # pylint: disable=no-member
-    GPIO.output(pin, state)    # pylint: disable=no-member
+    if ARGS["testmode"]:
+        print(f"Turn heater on: {state}, GPIO pin {pin}")
+    else:
+        import RPi.GPIO as GPIO  # pylint: disable=consider-using-from-import,disable=import-outside-toplevel
+
+        GPIO.setmode(GPIO.BCM)  # pylint: disable=no-member
+        GPIO.setup(pin, GPIO.OUT)  # pylint: disable=no-member
+        GPIO.output(pin, state)  # pylint: disable=no-member
 
 
 def calculate_heater_state(
     temp_celsius: float, rel_humidity: float, temp_margin: float
 ) -> bool:
     """
-    Calculate if the heater should be turned off or on based on current temperature and humidity
+    Calculate if the heater should be turned off or on based on current temperature and humidity.
+    Print calculation data in test mode.
 
     param temp_celsius: current temperature in degrees Celsius
     param rel_humidity: current relative humidity
@@ -174,10 +179,7 @@ def __main__(
     """
     temp_celsius, rel_humidity = get_temp_and_humidity(latitude, longitude, api_key)
     heater_state = calculate_heater_state(temp_celsius, rel_humidity, temp_margin)
-    if ARGS["testmode"]:
-        print(f"Turn heater on: {heater_state}, GPIO pin {pin}")
-    else:
-        switch_heater(pin, heater_state)
+    switch_heater(pin, heater_state)
 
 
 __main__(
