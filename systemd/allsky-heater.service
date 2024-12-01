@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 /usr/local/bin/allsky_heater.py
+ExecStart=/usr/bin/python3 /usr/local/bin/allsky_heater.py /etc/allsky-heater.conf
 User=pi
 Group=pi
 
