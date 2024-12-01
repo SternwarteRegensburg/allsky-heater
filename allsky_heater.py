@@ -13,7 +13,7 @@ import math
 PARSER = argparse.ArgumentParser(
     prog="AllSky Camera Heater Management",
     description="Turn AllSky camera dew heater on or off.",
-    epilog="https://github.com/SternwarteRegensburg.de/allsky-heater, MIT License",
+    epilog="https://github.com/SternwarteRegensburg/allsky-heater, MIT License",
 )
 PARSER.add_argument(
     "config_file", default="/etc/allsky-heater.conf", help="Path to config file."
