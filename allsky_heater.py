@@ -138,7 +138,7 @@ def calculate_heater_state(
 
     param temp_celsius: current temperature in degrees Celsius
     param rel_humidity: current relative humidity
-    param temp_margin: margin above current temperature which should turn on the heater
+    param temp_margin: margin above current temperature at which the heater should turn on
     return: state of heater
     """
     dew_point = get_dew_point_c(temp_celsius, rel_humidity)
@@ -165,11 +165,17 @@ def __main__(
 ):
     """
     main program loop
+
+    param latitude: AllSky camera location latitude
+    param longitude: AllSky camera location longitude
+    param api_key: openweathermap.org API key
+    param pin: GPIO pin number that is connected to the relay
+    param temp_margin: margin above current temperature at which the heater should turn on
     """
     temp_celsius, rel_humidity = get_temp_and_humidity(latitude, longitude, api_key)
     heater_state = calculate_heater_state(temp_celsius, rel_humidity, temp_margin)
     if ARGS["testmode"]:
-        print(f"Turn heater on: {heater_state}")
+        print(f"Turn heater on: {heater_state}, GPIO pin {pin}")
     else:
         switch_heater(pin, heater_state)
 

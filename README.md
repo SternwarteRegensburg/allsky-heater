@@ -68,5 +68,5 @@ Example:
 $ python3 allsky_heater.py -t ./allsky-heater.conf
 Current temperature: -0.71°C, rel. humidity: 86%
 Dew point: -2.76°C, frost_point: -2.67°C
-Turn heater on: True
+Turn heater on: True, GPIO pin 7
 ```
