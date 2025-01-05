@@ -9,6 +9,7 @@ import http.client
 import json
 import math
 
+from typing import Union
 
 PARSER = argparse.ArgumentParser(
     prog="AllSky Camera Heater Management",
@@ -72,7 +73,7 @@ def get_dew_point_c(t_air_c: float, rel_humidity: float) -> float:
     return (B * alpha) / (A - alpha)
 
 
-def fetch_weather_info(latitude: float, longitude: float, api_key: str) -> dict | None:
+def fetch_weather_info(latitude: float, longitude: float, api_key: str) -> Union[dict, None]:
     """
     Fetch current weather information for a location
 
@@ -128,7 +129,7 @@ def switch_heater(pin: int, state: bool) -> None:
         print(f"Turn heater on: {state}, GPIO pin {pin}")
     else:
         import RPi.GPIO as GPIO  # pylint: disable=consider-using-from-import,disable=import-outside-toplevel
-
+        GPIO.setwarnings(False)  # pylint: disable=no-member
         GPIO.setmode(GPIO.BCM)  # pylint: disable=no-member
         GPIO.setup(pin, GPIO.OUT)  # pylint: disable=no-member
         GPIO.output(pin, state)  # pylint: disable=no-member
