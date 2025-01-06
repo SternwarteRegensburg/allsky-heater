@@ -26,6 +26,13 @@ PARSER.add_argument(
     help="Do not toggle heater, print data instead.",
     default=False,
 )
+PARSER.add_argument(
+    "-v",
+    "--verbose",
+    action="store_true",
+    help="",
+    default=False,
+)
 ARGS = vars(PARSER.parse_args())
 
 CONFIG = configparser.ConfigParser()
@@ -125,14 +132,15 @@ def switch_heater(pin: int, state: bool) -> None:
     param pin: GPIO pin number that is connected to the relay
     param state: true turns heater on, false turns heater off
     """
-    if ARGS["testmode"]:
+    if ARGS["testmode"] or ARGS["verbose"]:
         print(f"Turn heater on: {state}, GPIO pin {pin}")
-    else:
-        import RPi.GPIO as GPIO  # pylint: disable=consider-using-from-import,disable=import-outside-toplevel
-        GPIO.setwarnings(False)  # pylint: disable=no-member
-        GPIO.setmode(GPIO.BCM)  # pylint: disable=no-member
-        GPIO.setup(pin, GPIO.OUT)  # pylint: disable=no-member
-        GPIO.output(pin, state)  # pylint: disable=no-member
+    if ARGS["testmode"]:
+        return
+    import RPi.GPIO as GPIO  # pylint: disable=consider-using-from-import,disable=import-outside-toplevel
+    GPIO.setwarnings(False)  # pylint: disable=no-member
+    GPIO.setmode(GPIO.BCM)  # pylint: disable=no-member
+    GPIO.setup(pin, GPIO.OUT)  # pylint: disable=no-member
+    GPIO.output(pin, state)  # pylint: disable=no-member
 
 
 def calculate_heater_state(
@@ -149,11 +157,11 @@ def calculate_heater_state(
     """
     dew_point = get_dew_point_c(temp_celsius, rel_humidity)
     frost_point = get_frost_point_c(temp_celsius, dew_point)
-    if ARGS["testmode"]:
+    if ARGS["testmode"] or ARGS["verbose"]:
         print(
             f"Current temperature: {temp_celsius:.2f}°C, rel. humidity: {rel_humidity}%"
         )
-        print(f"Dew point: {dew_point:.2f}°C, frost_point: {frost_point:.2f}°C")
+        print(f"Dew point: {dew_point:.2f}°C, frost point: {frost_point:.2f}°C")
     if (
         temp_celsius - temp_margin < dew_point
         or temp_celsius - temp_margin < frost_point
