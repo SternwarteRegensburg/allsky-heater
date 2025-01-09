@@ -162,10 +162,9 @@ def calculate_heater_state(
             f"Current temperature: {temp_celsius:.2f}°C, rel. humidity: {rel_humidity}%"
         )
         print(f"Dew point: {dew_point:.2f}°C, frost point: {frost_point:.2f}°C")
-    if (
-        temp_celsius - temp_margin < dew_point
-        or temp_celsius - temp_margin < frost_point
-    ):
+    if temp_celsius <= 0 and temp_celsius - temp_margin < frost_point:
+        return True
+    elif temp_celsius > 0 and temp_celsius - temp_margin < dew_point:
         return True
     return False
 
